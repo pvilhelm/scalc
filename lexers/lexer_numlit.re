@@ -25,7 +25,7 @@ loop:
         uint_hex = '0x'[a-fA-F0-9']+[uU]?;
         int_hex = '0x'[a-fA-F0-9']+[sS];
         b_int = '0b'[10']+[sS];
-        b_uint = '0b'[10']+[uU];
+        b_uint = '0b'[10']+[uU]?;
 
         * { 
             Number n{};
@@ -54,7 +54,10 @@ loop:
         
         @o1 int @o2 { 
             string s(o1, o2);
+            // Todo: Make something smarter here
             s.erase(std::remove(s.begin(), s.end(), '\''), s.end());
+            s.erase(std::remove(s.begin(), s.end(), 'S'), s.end());
+            s.erase(std::remove(s.begin(), s.end(), 's'), s.end());
 
             auto ans = stoll(s);
             Number n;
@@ -69,6 +72,29 @@ loop:
             auto ans = stoull(s);
             Number n;
             n.set_val_u64(ans);
+            return n; 
+        }
+
+        @o1 uint_hex @o2 { 
+            string s(o1, o2);
+            s.erase(std::remove(s.begin(), s.end(), '\''), s.end());
+
+            auto ans = stoull(s, 0, 16);
+            Number n;
+            n.set_val_u64(ans);
+            return n; 
+        }
+
+        @o1 int_hex @o2 { 
+            string s(o1, o2);
+            // Todo: Make something smarter here
+            s.erase(std::remove(s.begin(), s.end(), '\''), s.end());
+            s.erase(std::remove(s.begin(), s.end(), 'S'), s.end());
+            s.erase(std::remove(s.begin(), s.end(), 's'), s.end());
+
+            auto ans = stoull(s, 0, 16);
+            Number n;
+            n.set_val_i64(ans);
             return n; 
         }
     */

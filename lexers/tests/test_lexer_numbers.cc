@@ -34,7 +34,7 @@ TEST_CASE("Test number parsing"){
         REQUIRE(a.i_val == 1001);
         REQUIRE(a.number_type == Number::Number_type::INT64);
     }
-    SECTION("Simple int test"){
+    SECTION("Simple int test with s"){
         string q = "1001s";
         auto a = lex_number(q.c_str());
         REQUIRE(a.i_val == 1001);
@@ -46,5 +46,22 @@ TEST_CASE("Test number parsing"){
         REQUIRE(a.u_val == 1001);
         REQUIRE(a.number_type == Number::Number_type::UINT64);
     }
-
+    SECTION("Simple hex test"){
+        string q = "0x1234";
+        auto a = lex_number(q.c_str());
+        REQUIRE(a.u_val == 0x1234);
+        REQUIRE(a.number_type == Number::Number_type::UINT64);
+    }
+    SECTION("Simple hex test"){
+        string q = "0x1234s";
+        auto a = lex_number(q.c_str());
+        REQUIRE(a.i_val == 0x1234);
+        REQUIRE(a.number_type == Number::Number_type::INT64);
+    }
+    SECTION("Simple hex test with '"){
+        string q = "0x1234'5678";
+        auto a = lex_number(q.c_str());
+        REQUIRE(a.u_val == 0x12345678);
+        REQUIRE(a.number_type == Number::Number_type::UINT64);
+    }
 }
