@@ -58,10 +58,42 @@ TEST_CASE("Test number parsing"){
         REQUIRE(a.i_val == 0x1234);
         REQUIRE(a.number_type == Number::Number_type::INT64);
     }
+    SECTION("Simple invalid hex test"){
+        string q = "0x123Q4s";
+        auto a = lex_number(q.c_str());
+        REQUIRE(a.number_type == Number::Number_type::INVALID);
+    }
     SECTION("Simple hex test with '"){
         string q = "0x1234'5678";
         auto a = lex_number(q.c_str());
         REQUIRE(a.u_val == 0x12345678);
         REQUIRE(a.number_type == Number::Number_type::UINT64);
+    }
+
+    SECTION("Simple signed bin test with '"){
+        string q = "0b1001'1001s";
+        auto a = lex_number(q.c_str());
+        REQUIRE(a.i_val == 0b10011001);
+        REQUIRE(a.number_type == Number::Number_type::INT64);
+    }
+
+    SECTION("Simple unsigned bin test with '"){
+        string q = "0b1001'1001";
+        auto a = lex_number(q.c_str());
+        REQUIRE(a.u_val == 0b10011001);
+        REQUIRE(a.number_type == Number::Number_type::UINT64);
+    }
+
+    SECTION("Simple unsigned bin test with ' and u"){
+        string q = "0b1001'1001u";
+        auto a = lex_number(q.c_str());
+        REQUIRE(a.u_val == 0b10011001);
+        REQUIRE(a.number_type == Number::Number_type::UINT64);
+    }
+
+    SECTION("Simple unsigned bin test with invalid numbers"){
+        string q = "0b1002'1001u";
+        auto a = lex_number(q.c_str());
+        REQUIRE(a.number_type == Number::Number_type::INVALID);
     }
 }

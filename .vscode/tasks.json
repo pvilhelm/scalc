@@ -6,11 +6,8 @@
         {
             "label": "build",
             "type": "shell",
-            "command" : "./build.bat",
-            //"command": "bash --login -i ${workspaceFolder}/build.sh",
-            //"command" : "x:\\cygwin64\\bin\\mintty.exe x:\\cygwin64\\bin\\env.exe CHERE_INVOKING=1 C:\\cygwin64\\bin\\bash.exe --login -i build.sh",
+            "command" : "build.bat",
             "problemMatcher": [],
-            
         }
     ]
 }

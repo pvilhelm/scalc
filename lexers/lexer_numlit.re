@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <algorithm>
+#include <cinttypes>
 
 #include "lexers/lexers.h"
 using namespace std;
@@ -24,15 +25,55 @@ loop:
         uint = [1-9][0-9']*[uU];
         uint_hex = '0x'[a-fA-F0-9']+[uU]?;
         int_hex = '0x'[a-fA-F0-9']+[sS];
-        b_int = '0b'[10']+[sS];
-        b_uint = '0b'[10']+[uU]?;
+        b_int = '0b'[10][10']*[sS];
+        b_uint = '0b'[10][10']*[uU]?;
 
         * { 
             Number n{};
             return n; 
         }
-        end { return Number{}; }
-        @o1 float @o2 { 
+
+        @o1 b_uint @o2 end { 
+            string s(o1, o2);
+            s.erase(std::remove(s.begin(), s.end(), '\''), s.end());
+
+            uint64_t val = 0;
+            uint64_t place = 0;
+            for(int i = s.size() - 1; i >= 0; i--){
+                if(s[i] == 'u' || s[i] == 'U')
+                    continue;
+                
+                int place_value = s[i] == '1' ? 1 : 0;
+                place_value = place_value << place++;
+                val += place_value;
+            }
+            
+            Number n;
+            n.set_val_u64(val);
+            return n; 
+        }
+
+        @o1 b_int @o2 end { 
+            string s(o1, o2);
+            s.erase(std::remove(s.begin(), s.end(), '\''), s.end());
+
+            int64_t val = 0;
+            int64_t place = 0;
+            for(int i = s.size() - 1; i >= 0; i--){
+                if(s[i] == 's' || s[i] == 'S')
+                    continue;
+                
+                int place_value = s[i] == '1' ? 1 : 0;
+                place_value = place_value << place++;
+                val += place_value;
+            }
+            
+            Number n;
+            n.set_val_i64(val);
+            return n; 
+        }
+
+        @o1 float @o2 end{ 
             string s(o1, o2);
             s.erase(std::remove(s.begin(), s.end(), '\''), s.end());
 
@@ -42,7 +83,7 @@ loop:
             return n; 
         }
 
-        @o1 float_EE @o2 { 
+        @o1 float_EE @o2 end { 
             string s(o1, o2);
             s.erase(std::remove(s.begin(), s.end(), '\''), s.end());
 
@@ -52,7 +93,7 @@ loop:
             return n; 
         }
         
-        @o1 int @o2 { 
+        @o1 int @o2 end { 
             string s(o1, o2);
             // Todo: Make something smarter here
             s.erase(std::remove(s.begin(), s.end(), '\''), s.end());
@@ -65,7 +106,7 @@ loop:
             return n; 
         }
 
-        @o1 uint @o2 { 
+        @o1 uint @o2 end { 
             string s(o1, o2);
             s.erase(std::remove(s.begin(), s.end(), '\''), s.end());
 
@@ -75,7 +116,7 @@ loop:
             return n; 
         }
 
-        @o1 uint_hex @o2 { 
+        @o1 uint_hex @o2 end { 
             string s(o1, o2);
             s.erase(std::remove(s.begin(), s.end(), '\''), s.end());
 
@@ -85,7 +126,7 @@ loop:
             return n; 
         }
 
-        @o1 int_hex @o2 { 
+        @o1 int_hex @o2 end { 
             string s(o1, o2);
             // Todo: Make something smarter here
             s.erase(std::remove(s.begin(), s.end(), '\''), s.end());
