@@ -15,12 +15,27 @@
             "environment": [],
             "externalConsole": true,
             "MIMode": "gdb",
-            "miDebuggerPath": "c:\\cygwin64\\bin\\gdb.exe",
+            "miDebuggerPath": "x:\\cygwin64\\bin\\gdb.exe",
             "setupCommands": [
+                {
+                    "description": "Setup python prettyprint",
+                    "text": "python import sys;sys.path.insert(0, '/home/fisksoppa/python');from libstdcxx.v6.printers import register_libstdcxx_printers;register_libstdcxx_printers(None)",
+                    "ignoreFailures": false
+                },
                 {
                     "description": "Enable pretty-printing for gdb",
                     "text": "-enable-pretty-printing",
                     "ignoreFailures": true,
+                },
+                {
+                    "description": "Skip files when debugging",
+                    "text": "skip -gfile catch*",
+                    "ignoreFailures": false
+                },
+                {
+                    "description": "Skip files when debugging",
+                    "text": "skip -gfile shared_ptr*",
+                    "ignoreFailures": false
                 }
             ]
         },
@@ -36,7 +51,7 @@
             "environment": [],
             "externalConsole": true,
             "MIMode": "gdb",
-            "miDebuggerPath": "c:\\cygwin64\\bin\\gdb.exe",
+            "miDebuggerPath": "x:\\cygwin64\\bin\\gdb.exe",
             "setupCommands": [
                 {
                     "description": "Enable pretty-printing for gdb",

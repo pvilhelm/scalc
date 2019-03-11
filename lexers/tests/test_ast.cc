@@ -75,10 +75,10 @@ R"rrr( START
 f SYMBOL
 = BI_OPERATOR::ASSIGN
 {
- START
-1 NUMBER_LITERAL
-+ BI_OPERATOR::PLUS
-1 NUMBER_LITERAL
+     START
+    1 NUMBER_LITERAL
+    + BI_OPERATOR::PLUS
+    1 NUMBER_LITERAL
 }
 * BI_OPERATOR::TIMES
 2 NUMBER_LITERAL
@@ -96,12 +96,140 @@ a SYMBOL
 = BI_OPERATOR::ASSIGN
 sin SYMBOL
 {
- START
-2.3 NUMBER_LITERAL
-+ BI_OPERATOR::PLUS
-pi SYMBOL
+     START
+    2.3 NUMBER_LITERAL
+    + BI_OPERATOR::PLUS
+    pi SYMBOL
 }
 )rrr";
         REQUIRE(key == root_node->as_string_tree(true));
+    }
+
+    SECTION("Test AST tree sort with Shunting yard algo"){
+        auto q = make_shared<string>("a = 2 + 2");
+
+        auto root_node = string_to_ASTnodes(q, 0, q->length());
+
+        auto  ast_root = sort_shunting_yard_ASTnodes(root_node);
+        REQUIRE(ast_root->as_string() == "="); 
+        REQUIRE(ast_root->as_string_tree(true) == 
+R"rrr(= BI_OPERATOR::ASSIGN
+{
+    + BI_OPERATOR::PLUS
+    {
+        2 NUMBER_LITERAL
+        2 NUMBER_LITERAL
+    }
+    a SYMBOL
+}
+)rrr"
+        );
+    }
+
+    SECTION("Test AST tree sort with Shunting yard algo 2"){
+        auto q = make_shared<string>("a = 1 / 2 + 2");
+
+        auto root_node = string_to_ASTnodes(q, 0, q->length());
+
+        auto  ast_root = sort_shunting_yard_ASTnodes(root_node);
+        REQUIRE(ast_root->as_string() == "="); 
+        REQUIRE(ast_root->as_string_tree(true) == 
+R"rrr(= BI_OPERATOR::ASSIGN
+{
+    + BI_OPERATOR::PLUS
+    {
+        2 NUMBER_LITERAL
+        / BI_OPERATOR::RDIVIDE
+        {
+            2 NUMBER_LITERAL
+            1 NUMBER_LITERAL
+        }
+    }
+    a SYMBOL
+}
+)rrr"
+        );
+    }
+
+    SECTION("Test AST tree sort with Shunting yard algo 3"){
+        auto q = make_shared<string>("a = (1 / 2 + 2) * 1");
+
+        auto root_node = string_to_ASTnodes(q, 0, q->length());
+
+        auto  ast_root = sort_shunting_yard_ASTnodes(root_node);
+        REQUIRE(ast_root->as_string() == "="); 
+        REQUIRE(ast_root->as_string_tree(true) == 
+R"rrr(= BI_OPERATOR::ASSIGN
+{
+    * BI_OPERATOR::TIMES
+    {
+        1 NUMBER_LITERAL
+        + BI_OPERATOR::PLUS
+        {
+            2 NUMBER_LITERAL
+            / BI_OPERATOR::RDIVIDE
+            {
+                2 NUMBER_LITERAL
+                1 NUMBER_LITERAL
+            }
+        }
+    }
+    a SYMBOL
+}
+)rrr"
+        );
+    }
+
+    SECTION("Test AST tree sort with Shunting yard algo 4"){
+        auto q = make_shared<string>("a = 2^3+1");
+
+        auto root_node = string_to_ASTnodes(q, 0, q->length());
+
+        auto  ast_root = sort_shunting_yard_ASTnodes(root_node);
+        REQUIRE(ast_root->as_string() == "="); 
+        REQUIRE(ast_root->as_string_tree(true) == 
+R"rrr(= BI_OPERATOR::ASSIGN
+{
+    + BI_OPERATOR::PLUS
+    {
+        1 NUMBER_LITERAL
+        ^ BI_OPERATOR::POWER_OF
+        {
+            3 NUMBER_LITERAL
+            2 NUMBER_LITERAL
+        }
+    }
+    a SYMBOL
+}
+)rrr"
+        );
+    }
+    SECTION("Test AST tree sort with Shunting yard algo 5"){
+        auto q = make_shared<string>("a = 2^4^3+1");
+
+        auto root_node = string_to_ASTnodes(q, 0, q->length());
+
+        auto  ast_root = sort_shunting_yard_ASTnodes(root_node);
+        REQUIRE(ast_root->as_string() == "="); 
+        REQUIRE(ast_root->as_string_tree(true) == 
+R"rrr(= BI_OPERATOR::ASSIGN
+{
+    + BI_OPERATOR::PLUS
+    {
+        1 NUMBER_LITERAL
+        ^ BI_OPERATOR::POWER_OF
+        {
+            ^ BI_OPERATOR::POWER_OF
+            {
+                3 NUMBER_LITERAL
+                4 NUMBER_LITERAL
+            }
+            2 NUMBER_LITERAL
+        }
+    }
+    a SYMBOL
+}
+)rrr"
+        );
     }
 }

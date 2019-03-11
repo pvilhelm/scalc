@@ -4,6 +4,7 @@
 #include <cinttypes>
 #include <memory>
 #include <map>
+#include <stdexcept>
 
 class Number{
 public:
@@ -64,6 +65,7 @@ enum class Bi_operator_type {
 };
 
 const std::map<Bi_operator_type, int> map_bioptype_to_priority = {
+    /* Lower number is higher priority. */
     {Bi_operator_type::PLUS, 3},
     {Bi_operator_type::MINUS, 3},
     {Bi_operator_type::POWER_OF, 1},
@@ -108,17 +110,27 @@ public:
     }
 };
 
+enum class Eval_value_type {
+    NUMBER,
+    INVALID
+};
+
+class Eval_value {
+    Eval_value_type eval_value_type = Eval_value_type::INVALID;
+
+};
+
 class AST_node {
     public:
-        std::shared_ptr<AST_node> child;
-        std::shared_ptr<AST_node> next;
+        std::shared_ptr<AST_node> child = nullptr;
+        std::shared_ptr<AST_node> next = nullptr;
         Token_type token_type = Token_type::INVALID;
 
         virtual ~AST_node(){};
 
-        std::shared_ptr<std::string> ptr_s;
-        size_t offset;
-        size_t length;
+        std::shared_ptr<std::string> ptr_s = nullptr;
+        size_t offset = 0;
+        size_t length = 0;
 
         std::string as_string(){
             std::string ans;
@@ -127,6 +139,9 @@ class AST_node {
             if(token_type == Token_type::END)
                 return "";
             
+            if(!ptr_s)
+                throw std::runtime_error("String ptr null");
+
             ans = ptr_s->substr(offset, length);
             return ans;
         }
@@ -154,19 +169,25 @@ class AST_node {
         }
 
     private:
-        void as_string_tree_helper(std::shared_ptr<std::string> s, bool print_type = false){  
-            if(this->child != nullptr){
-                *s += "{\n";
-                this->child->as_string_tree_helper(s, print_type);
-                *s += "}\n";
-            } else {
-                *s += as_string() + (print_type ? " " + type_as_string() : "");
-                *s += "\n";
+        void as_string_tree_helper(std::shared_ptr<std::string> s, bool print_type = false, size_t intend = 0){
+            if(this->token_type == Token_type::INVALID)
+                throw std::runtime_error("Improper tree");
+
+            if(this->token_type != Token_type::LIST_LITERAL){
+                    *s += std::string(intend, ' ') + as_string() + (print_type ? " " + type_as_string() : "");
+                    *s += "\n";
             }
+
+            if(this->child != nullptr){
+                *s += std::string(intend, ' ') + "{\n";
+                this->child->as_string_tree_helper(s, print_type, intend + 4);
+                *s += std::string(intend, ' ') + "}\n";
+            }
+
             if(next == nullptr)
                 return;
             else
-                next->as_string_tree_helper(s, print_type);
+                next->as_string_tree_helper(s, print_type, intend);
         }
 };
 
@@ -191,6 +212,22 @@ public:
                 default     					    :   throw std::runtime_error("Invalid Bi_operator_type");
             }
         }
+
+    int get_priority() const {
+        auto ans = map_bioptype_to_priority.find(this->bi_operator_type);
+        if(ans != map_bioptype_to_priority.cend())
+            return ans->second;
+        else
+            throw std::runtime_error("Bugg. Bioperator token doesn't have operator priority");
+    }
+
+    Operator_associativity get_associativity() const {
+        auto ans = map_bioptype_to_associativity.find(this->bi_operator_type);
+        if(ans != map_bioptype_to_associativity.cend())
+            return ans->second;
+        else
+            throw std::runtime_error("Bugg. Bioperator token doesn't have operator associativity");
+    }
 };
 
 std::shared_ptr<AST_node> string_to_ASTnodes(std::shared_ptr<std::string> ptr_s, size_t offset, size_t len);
@@ -199,3 +236,5 @@ std::vector<Token> lex_tokens(const char *YYCURSOR);
 Number lex_number(const char *YYCURSOR);
 
 std::shared_ptr<AST_node> lex_operator_token(const char *YYCURSOR);
+
+std::shared_ptr<AST_node> sort_shunting_yard_ASTnodes(std::shared_ptr<AST_node> root_node);

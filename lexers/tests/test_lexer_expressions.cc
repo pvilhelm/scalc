@@ -77,5 +77,17 @@ TEST_CASE("Test lexer expressions"){
         REQUIRE(ans[1].from_string(q)=="=");
         REQUIRE(ans[2].from_string(q)=="2");
     }
+    SECTION("Simple assignement"){
+        string q = "2^3";
+        
+        auto ans = lex_tokens(q.c_str());
 
+        REQUIRE(ans[0].token_type == Token_type::NUMBER_LITERAL);
+        REQUIRE(ans[1].token_type == Token_type::BI_OPERATOR);
+        REQUIRE(ans[2].token_type == Token_type::NUMBER_LITERAL);
+
+        REQUIRE(ans[0].from_string(q)=="2");
+        REQUIRE(ans[1].from_string(q)=="^");
+        REQUIRE(ans[2].from_string(q)=="3");
+    }
 }
