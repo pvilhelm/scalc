@@ -34,6 +34,18 @@ std::shared_ptr<AST_node> string_to_ASTnodes(std::shared_ptr<std::string> ptr_s,
             node->ptr_s = ptr_s;
             marker->next = node;
             marker = node;
+        } else if(token.token_type == Token_type::NUMBER_LITERAL){
+            string ss = token.from_string(sub_s);
+            auto node = make_shared<AST_number_node>();
+            node->number = lex_number(ss.c_str());
+            if(node->number.number_type == Number::Number_type::INVALID){
+                throw runtime_error("Invalid number token:" + ss);
+            }
+            node->ptr_s = ptr_s;
+            node->offset = token.begin + offset;
+            node->length = token.length();
+            marker->next = node;
+            marker = node;
         } else if(token.token_type == Token_type::BI_OPERATOR){
             string ss = token.from_string(sub_s);
             auto node = lex_operator_token(ss.c_str());
@@ -45,7 +57,7 @@ std::shared_ptr<AST_node> string_to_ASTnodes(std::shared_ptr<std::string> ptr_s,
             node->length = token.length();
             marker->next = node;
             marker = node;
-        } else {
+        }else {
             auto node = make_shared<AST_node>();
             node->ptr_s = ptr_s;
             node->token_type = token.token_type;

@@ -59,7 +59,9 @@ target_sources(test_main
                         lexers/lexer_tokens.cc
                         lexers/lexer_numlit.cc
                         lexers/lexer_operators.cc
-                        lexers/tests/test_lexer_operators.cc)
+                        lexers/tests/test_lexer_operators.cc
+                        lexers/ast_nodes/bioperator.cc
+                        lexers/ast_nodes/number.cc)
 
 target_link_libraries(test_main catch2)
 

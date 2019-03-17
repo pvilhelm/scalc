@@ -1,3 +1,5 @@
+#pragma once
+
 #include <vector>
 #include <tuple>
 #include <string>
@@ -10,9 +12,16 @@ class Number{
 public:
     enum class Number_type {
         INVALID,
-        FLOAT,
+        FLOAT64,
+        FLOAT32,
         INT64,
         UINT64,
+        INT32,
+        UINT32,
+        INT16,
+        UINT16,
+        INT8,
+        UINT8
     };
 
     double f_val = 0;
@@ -30,7 +39,7 @@ public:
     };
     void set_val_d64(double val){
         f_val = val;
-        number_type = Number_type::FLOAT;
+        number_type = Number_type::FLOAT64;
     };
     void set_val_u64(uint64_t val){
         u_val = val;
@@ -116,8 +125,9 @@ enum class Eval_value_type {
 };
 
 class Eval_value {
+public:
     Eval_value_type eval_value_type = Eval_value_type::INVALID;
-
+    Number number;
 };
 
 class AST_node {
@@ -191,45 +201,6 @@ class AST_node {
         }
 };
 
-class AST_bioperator_node : public AST_node {
-public:
-    Bi_operator_type bi_operator_type = Bi_operator_type::INVALID;
-    AST_bioperator_node(){
-        this->token_type = Token_type::BI_OPERATOR;
-    }
-
-    virtual std::string type_as_string() override {
-            switch(bi_operator_type){
-                case Bi_operator_type::ASSIGN       : 	return "BI_OPERATOR::ASSIGN";
-                case Bi_operator_type::EQUALS       :	return "BI_OPERATOR::EQUALS";
-                case Bi_operator_type::INVALID      :	return "BI_OPERATOR::INVALID";
-                case Bi_operator_type::LDIVIDE      :	return "BI_OPERATOR::LDIVIDE";
-                case Bi_operator_type::MINUS        :	return "BI_OPERATOR::MINUS";
-                case Bi_operator_type::PLUS         :	return "BI_OPERATOR::PLUS";
-                case Bi_operator_type::POWER_OF     :	return "BI_OPERATOR::POWER_OF";
-                case Bi_operator_type::RDIVIDE      :	return "BI_OPERATOR::RDIVIDE";
-                case Bi_operator_type::TIMES        :	return "BI_OPERATOR::TIMES";
-                default     					    :   throw std::runtime_error("Invalid Bi_operator_type");
-            }
-        }
-
-    int get_priority() const {
-        auto ans = map_bioptype_to_priority.find(this->bi_operator_type);
-        if(ans != map_bioptype_to_priority.cend())
-            return ans->second;
-        else
-            throw std::runtime_error("Bugg. Bioperator token doesn't have operator priority");
-    }
-
-    Operator_associativity get_associativity() const {
-        auto ans = map_bioptype_to_associativity.find(this->bi_operator_type);
-        if(ans != map_bioptype_to_associativity.cend())
-            return ans->second;
-        else
-            throw std::runtime_error("Bugg. Bioperator token doesn't have operator associativity");
-    }
-};
-
 std::shared_ptr<AST_node> string_to_ASTnodes(std::shared_ptr<std::string> ptr_s, size_t offset, size_t len);
 
 std::vector<Token> lex_tokens(const char *YYCURSOR);
@@ -238,3 +209,6 @@ Number lex_number(const char *YYCURSOR);
 std::shared_ptr<AST_node> lex_operator_token(const char *YYCURSOR);
 
 std::shared_ptr<AST_node> sort_shunting_yard_ASTnodes(std::shared_ptr<AST_node> root_node);
+
+#include "lexers/ast_nodes/bioperator.h"
+#include "lexers/ast_nodes/number.h"
