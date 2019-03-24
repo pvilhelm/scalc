@@ -15,14 +15,14 @@ loop:
         re2c:define:YYCTYPE = char;
         re2c:yyfill:enable = 0;
 
-        line_continue = "\\\n"; //At a "line continue" the expression continue on the next line. 
-        end = "\x00" | "\n";
+        line_continue = "\\\n" | "\\\r\n"; //At a "line continue" the expression continue on the next line. 
+        end = "\x00" | "\n" | "\r\n";
 		operator = [+\-*\\/=<>\^] | "<=" | ">=" | "==";
 
-        float = [1-9][0-9']*("."[0-9']*);
-        float_EE = [1-9][0-9']*("."?[0-9']*)[Ee][-+]?[0-9']+;
-        int = [1-9][0-9']*[Ss]?;
-        uint = [1-9][0-9']*[uU];
+        float = [0-9']*("."[0-9']*);
+        float_EE = [0-9']*("."?[0-9']*)[Ee][-+]?[0-9']+;
+        int = [0-9']*[Ss]?;
+        uint = [0-9']*[uU];
         uint_hex = '0x'[a-fA-F0-9']+[uU]?;
         int_hex = '0x'[a-fA-F0-9']+[sS];
         b_int = '0b'[10']+[sS];

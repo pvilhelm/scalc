@@ -16,7 +16,8 @@ public:
 
     bool is_done();
 
-    static Statement_machine string_to_machine(std::shared_ptr<std::string> s);
-
     static Statement_machine string_to_machine(std::string ss);
+    static Statement_machine string_to_machine(std::string ss, std::shared_ptr<Scope> scope);
+    static Statement_machine string_to_machine(std::shared_ptr<std::string> s, std::shared_ptr<Scope> scope);
+    static Statement_machine string_to_machine(std::shared_ptr<std::string> s);
 };

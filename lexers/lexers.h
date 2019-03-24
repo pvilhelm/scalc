@@ -135,7 +135,7 @@ public:
     Number number;
 
     std::string to_string(){
-        std::string s;
+        std::string s = "";
         if(eval_value_type == Eval_value_type::NUMBER){
             if(number.number_type == Number::Number_type::FLOAT64)
                 s += std::to_string(number.f_val);
@@ -159,10 +159,21 @@ class Scope {
 public:
     std::shared_ptr<Scope> parent_scope = nullptr;
 
-    std::map<std::string, std::shared_ptr<Symbol>> map_symbolname_to_symbolptr;
+    std::map<std::string, std::shared_ptr<Symbol>> map_symbolname_to_symbolptr{};
 
     std::string to_string(){
-        std::string s;
+        std::shared_ptr<std::string> s_ptr(new std::string);
+        std::shared_ptr<size_t> intend_ptr = std::make_shared<size_t>(0);
+        to_string_helper(intend_ptr, s_ptr);
+        return *s_ptr;
+    }
+
+    void to_string_helper(std::shared_ptr<size_t> intend_ptr, std::shared_ptr<std::string> s_ptr){
+        if(parent_scope != nullptr){
+            *s_ptr += std::string(*intend_ptr, ' ') + "{\n";
+            parent_scope->to_string_helper(intend_ptr, s_ptr);
+            *intend_ptr +=4;
+        }
         std::vector<std::shared_ptr<Symbol>> v_str;
         for(auto p : map_symbolname_to_symbolptr){
             v_str.push_back(p.second);
@@ -170,14 +181,15 @@ public:
         /* Sort symbols by name */
         std::sort(v_str.begin(), v_str.end(),
                     [](std::shared_ptr<Symbol> a, std::shared_ptr<Symbol> b){
-                        return a->name > b->name;
+                        return a->name < b->name;
                     }
-                )
-        s += "{\n";
+                 );
+        *s_ptr += std::string(*intend_ptr, ' ') + "{\n";
         for(auto sym : v_str)
-            s += sym->name + sym->value.to_string() + "\n";
-        s += "}\n"
-
+            *s_ptr += std::string(*intend_ptr + 4, ' ') + sym->name + ": " + sym->value.to_string() + "\n";
+        *s_ptr += std::string(*intend_ptr, ' ') + "}\n";
+        if(parent_scope != nullptr)
+            *s_ptr += std::string(*intend_ptr - 4, ' ') + "}\n";
     }
 
     void add_symbol(std::shared_ptr<Symbol> ptr_symbol){

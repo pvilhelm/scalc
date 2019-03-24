@@ -46,7 +46,17 @@ endforeach()
 add_executable(main)
 target_sources(main 
                     PRIVATE
-                        ../main.cc)
+                        ../main.cc
+                        ../lexers/ast.cc
+                        ../lexers/lexer_tokens.cc
+                        ../lexers/lexer_numlit.cc
+                        ../lexers/lexer_operators.cc
+                        ../lexers/ast_nodes/bioperator.cc
+                        ../lexers/ast_nodes/number.cc
+                        ../lexers/ast_nodes/symbol.cc
+                        ../lexers/ast_nodes/statement.cc
+                        ../lexers/statement_machine.cc
+                )
 
 add_executable(test_main)
 
@@ -57,11 +67,11 @@ target_sources(test_main
                         ../lexers/tests/test_lexer_numbers.cc
                         ../lexers/tests/test_ast.cc
                         ../lexers/tests/test_statement_machine.cc
+                        ../lexers/tests/test_lexer_operators.cc
                         ../lexers/ast.cc
                         ../lexers/lexer_tokens.cc
                         ../lexers/lexer_numlit.cc
                         ../lexers/lexer_operators.cc
-                        ../lexers/tests/test_lexer_operators.cc
                         ../lexers/ast_nodes/bioperator.cc
                         ../lexers/ast_nodes/number.cc
                         ../lexers/tests/test_eval.cc

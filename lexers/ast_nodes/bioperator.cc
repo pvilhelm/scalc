@@ -100,7 +100,7 @@ Eval_value AST_bioperator_node::evaluate()
         auto node_l = dynamic_pointer_cast<AST_bioperator_node>(child->next);
         l = node_l->evaluate();
     } else if(child->next->token_type == Token_type::SYMBOL){
-        /* Todo: refactr so that assign l values are not handled like this ... */
+        /* Todo: refactor so that assign l values are not handled like this ... */
         if(bi_operator_type == Bi_operator_type::ASSIGN){
             l.eval_value_type = Eval_value_type::SYMBOL;
         } else {
@@ -361,7 +361,6 @@ Eval_value AST_bioperator_node::evaluate()
             throw runtime_error("Trying to assign to an non-symbol");
 
         auto node_l = dynamic_pointer_cast<AST_symbol_node>(child->next);
-        auto scope = node_l->scope;
         auto symbol = node_l->symbol_ptr;
         symbol->value = r;
         ans = r;
