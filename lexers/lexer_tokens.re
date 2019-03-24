@@ -15,7 +15,8 @@ loop:
         re2c:define:YYCTYPE = char;
         re2c:yyfill:enable = 0;
 
-        end = "\x00";
+        line_continue = "\\\n"; //At a "line continue" the expression continue on the next line. 
+        end = "\x00" | "\n";
 		operator = [+\-*\\/=<>\^] | "<=" | ">=" | "==";
 
         float = [1-9][0-9']*("."[0-9']*);
@@ -25,7 +26,7 @@ loop:
         uint_hex = '0x'[a-fA-F0-9']+[uU]?;
         int_hex = '0x'[a-fA-F0-9']+[sS];
         b_int = '0b'[10']+[sS];
-        b_uint = '0b'[10']+[uU];
+        b_uint = '0b'[10']+[uU]?;
 
 		number = float | float_EE | int | uint | uint_hex | int_hex | b_int | b_uint;
         
@@ -40,6 +41,9 @@ loop:
             return ans; 
         }
         end { return ans; }
+        line_continue {
+            goto loop;
+        }
         @o1 operator @o2 { 
             Token token(Token_type::BI_OPERATOR, (size_t)(o1 - start), (size_t)(o2 - start));
             ans.push_back(token); 

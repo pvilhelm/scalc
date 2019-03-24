@@ -15,18 +15,18 @@
             "environment": [],
             "externalConsole": true,
             "MIMode": "gdb",
-            "miDebuggerPath": "x:\\cygwin64\\bin\\gdb.exe",
+            "miDebuggerPath": "c:\\cygwin64\\bin\\gdb.exe",
             "setupCommands": [
-                {
+                /*{
                     "description": "Setup python prettyprint",
                     "text": "python import sys;sys.path.insert(0, '/home/fisksoppa/python');from libstdcxx.v6.printers import register_libstdcxx_printers;register_libstdcxx_printers(None)",
                     "ignoreFailures": false
-                },
-                {
+                },*/
+                /*{
                     "description": "Enable pretty-printing for gdb",
                     "text": "-enable-pretty-printing",
                     "ignoreFailures": true,
-                },
+                },*/
                 {
                     "description": "Skip files when debugging",
                     "text": "skip -gfile catch*",
@@ -51,14 +51,69 @@
             "environment": [],
             "externalConsole": true,
             "MIMode": "gdb",
-            "miDebuggerPath": "x:\\cygwin64\\bin\\gdb.exe",
+            "miDebuggerPath": "c:\\cygwin64\\bin\\gdb.exe",
             "setupCommands": [
                 {
                     "description": "Enable pretty-printing for gdb",
                     "text": "-enable-pretty-printing",
                     "ignoreFailures": true
+                },
+                {
+                    "description": "Skip files when debugging",
+                    "text": "skip -gfile catch*",
+                    "ignoreFailures": false
+                },
+                {
+                    "description": "Skip files when debugging",
+                    "text": "skip -gfile shared_ptr*",
+                    "ignoreFailures": false
                 }
             ]
+        },
+
+        {
+            "name": "C++ Launch",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "/mnt/c/repos/scalc/build/test_main",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "/mnt/c/repos/scalc/",
+            "environment": [],
+            "externalConsole": true,
+            "targetArchitecture": "x64",
+                "setupCommands": [
+                    {
+                        "description": "Enable pretty-printing for gdb",
+                        "text": "-enable-pretty-printing",
+                        "ignoreFailures": true
+                    },
+                    {
+                        "description": "Skip files when debugging",
+                        "text": "skip -gfile catch*",
+                        "ignoreFailures": false
+                    },
+                    {
+                        "description": "Skip files when debugging",
+                        "text": "skip -gfile shared_ptr*",
+                        "ignoreFailures": false
+                    },
+                    {
+                        "description": "Skip files when debugging",
+                        "text": "skip -gfile vector*",
+                        "ignoreFailures": false
+                    }
+                ],
+            
+            "pipeTransport": {
+                "pipeCwd": "c:\\repos/scalc/",
+                "pipeProgram": "c:\\windows\\sysnative\\bash.exe",
+                "pipeArgs": ["-c"],
+                "debuggerPath": "/usr/bin/gdb"
+            },
+            "sourceFileMap": {
+                "/mnt/c": "c:\\"
+            }
         }
     ]
 }

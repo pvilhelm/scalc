@@ -1,4 +1,3 @@
-cmake -DCMAKE_BUILD_TYPE=Debug -G Ninja -S ./ -B ./build
-
 cd build
+cmake -DCMAKE_BUILD_TYPE=Debug -G Ninja
 ninja

@@ -7,6 +7,9 @@
 #include <memory>
 #include <map>
 #include <stdexcept>
+#include <tuple>
+#include <string>
+#include <algorithm>
 
 class Number{
 public:
@@ -59,6 +62,7 @@ enum class Token_type {
     LIST_LITERAL,
     END,
     START,
+    STATEMENT,
 };
 
 enum class Bi_operator_type {
@@ -93,8 +97,8 @@ enum class Operator_associativity {
 const std::map<Bi_operator_type, Operator_associativity> map_bioptype_to_associativity = {
     {Bi_operator_type::PLUS, Operator_associativity::RIGHT},
     {Bi_operator_type::MINUS, Operator_associativity::RIGHT},
-    {Bi_operator_type::POWER_OF, Operator_associativity::RIGHT},
-    {Bi_operator_type::TIMES, Operator_associativity::LEFT},
+    {Bi_operator_type::POWER_OF, Operator_associativity::LEFT},
+    {Bi_operator_type::TIMES, Operator_associativity::RIGHT},
     {Bi_operator_type::RDIVIDE, Operator_associativity::RIGHT},
     {Bi_operator_type::LDIVIDE, Operator_associativity::RIGHT},
     {Bi_operator_type::EQUALS, Operator_associativity::RIGHT},
@@ -121,6 +125,7 @@ public:
 
 enum class Eval_value_type {
     NUMBER,
+    SYMBOL,
     INVALID
 };
 
@@ -128,6 +133,70 @@ class Eval_value {
 public:
     Eval_value_type eval_value_type = Eval_value_type::INVALID;
     Number number;
+
+    std::string to_string(){
+        std::string s;
+        if(eval_value_type == Eval_value_type::NUMBER){
+            if(number.number_type == Number::Number_type::FLOAT64)
+                s += std::to_string(number.f_val);
+            else if(number.number_type == Number::Number_type::INT64)
+                s += std::to_string(number.i_val);
+            else if(number.number_type == Number::Number_type::UINT64)
+                s += std::to_string(number.u_val);
+        }
+
+        return s;
+    }
+};
+
+class Symbol {
+public:
+    std::string name;
+    Eval_value value;
+};
+
+class Scope {
+public:
+    std::shared_ptr<Scope> parent_scope = nullptr;
+
+    std::map<std::string, std::shared_ptr<Symbol>> map_symbolname_to_symbolptr;
+
+    std::string to_string(){
+        std::string s;
+        std::vector<std::shared_ptr<Symbol>> v_str;
+        for(auto p : map_symbolname_to_symbolptr){
+            v_str.push_back(p.second);
+        }
+        /* Sort symbols by name */
+        std::sort(v_str.begin(), v_str.end(),
+                    [](std::shared_ptr<Symbol> a, std::shared_ptr<Symbol> b){
+                        return a->name > b->name;
+                    }
+                )
+        s += "{\n";
+        for(auto sym : v_str)
+            s += sym->name + sym->value.to_string() + "\n";
+        s += "}\n"
+
+    }
+
+    void add_symbol(std::shared_ptr<Symbol> ptr_symbol){
+        auto const iter = map_symbolname_to_symbolptr.find(ptr_symbol->name);
+        if(iter != map_symbolname_to_symbolptr.cend())
+            throw std::runtime_error("Symbol allready existing!");
+        map_symbolname_to_symbolptr[ptr_symbol->name] = ptr_symbol;
+    }
+
+    std::shared_ptr<Symbol> get_symbol(std::string name){
+        auto iter = map_symbolname_to_symbolptr.find(name);
+        if(iter == map_symbolname_to_symbolptr.end()){
+            if(parent_scope == nullptr)
+                return nullptr;
+            else 
+                return parent_scope->get_symbol(name);
+        }
+        return iter->second;
+    }
 };
 
 class AST_node {
@@ -135,6 +204,7 @@ class AST_node {
         std::shared_ptr<AST_node> child = nullptr;
         std::shared_ptr<AST_node> next = nullptr;
         Token_type token_type = Token_type::INVALID;
+        std::shared_ptr<Scope> scope = nullptr;
 
         virtual ~AST_node(){};
 
@@ -201,7 +271,38 @@ class AST_node {
         }
 };
 
-std::shared_ptr<AST_node> string_to_ASTnodes(std::shared_ptr<std::string> ptr_s, size_t offset, size_t len);
+std::shared_ptr<AST_node> string_to_ASTnodes
+(
+    std::shared_ptr<std::string> ptr_s,
+    size_t offset, 
+    size_t len
+);
+
+std::shared_ptr<AST_node> string_to_ASTnodes
+(   
+    std::shared_ptr<std::string> ptr_s, 
+    size_t offset, 
+    size_t len, 
+    std::shared_ptr<Scope> parent_scope
+);
+
+std::shared_ptr<AST_node> string_to_ASTnodes
+(   
+    std::shared_ptr<std::string> ptr_s, 
+    size_t offset, 
+    size_t len, 
+    std::shared_ptr<Scope> parent_scope,
+    std::shared_ptr<Scope> current_scope
+);
+
+std::shared_ptr<AST_node> lines_to_ASTnodes
+(
+    std::shared_ptr<std::string> ptr_s, 
+    size_t offset, 
+    size_t len, 
+    std::shared_ptr<Scope> parent_scope,
+    std::shared_ptr<Scope> current_scope
+);
 
 std::vector<Token> lex_tokens(const char *YYCURSOR);
 Number lex_number(const char *YYCURSOR);
@@ -212,3 +313,7 @@ std::shared_ptr<AST_node> sort_shunting_yard_ASTnodes(std::shared_ptr<AST_node> 
 
 #include "lexers/ast_nodes/bioperator.h"
 #include "lexers/ast_nodes/number.h"
+#include "lexers/ast_nodes/symbol.h"
+#include "lexers/ast_nodes/statement.h"
+
+#include "lexers/statement_machine.h"

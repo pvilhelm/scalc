@@ -29,7 +29,7 @@ TEST_CASE("Test number parsing"){
         REQUIRE(a.f_val == 10.2e-2);
     }
     SECTION("Simple int test"){
-        string q = "1001";
+        string q = "1001s";
         auto a = lex_number(q.c_str());
         REQUIRE(a.i_val == 1001);
         REQUIRE(a.number_type == Number::Number_type::INT64);
