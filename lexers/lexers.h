@@ -102,7 +102,7 @@ const std::map<Bi_operator_type, Operator_associativity> map_bioptype_to_associa
     {Bi_operator_type::RDIVIDE, Operator_associativity::RIGHT},
     {Bi_operator_type::LDIVIDE, Operator_associativity::RIGHT},
     {Bi_operator_type::EQUALS, Operator_associativity::RIGHT},
-    {Bi_operator_type::ASSIGN, Operator_associativity::RIGHT},
+    {Bi_operator_type::ASSIGN, Operator_associativity::LEFT},
 };
 
 class Token {
